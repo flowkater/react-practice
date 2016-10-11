@@ -1,69 +1,48 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
-class App extends Component {
+let Mixin = InnerComponent => class extends Component {
   constructor(){
     super();
-    this.state = {
-      red: 128,
-      green: 128,
-      blue: 128,
-      val: 0,
-      increasing: false
-    };
+    this.state = {val: 0};
     this.update = this.update.bind(this);
-    this.clickUpdate = this.clickUpdate.bind(this);
-  }
-  clickUpdate(){
-    this.setState({val: this.state.val + 1});
   }
   update(e){
-    ReactDOM.render(
-      <App val={this.props.val + 1} />,
-      document.getElementById('app')
-    );
-    // this.setState({
-    //   red: ReactDOM.findDOMNode(this.refs.red.refs.inp).value,
-    //   green: ReactDOM.findDOMNode(this.refs.green.refs.inp).value,
-    //   blue: ReactDOM.findDOMNode(this.refs.blue.refs.inp).value
-    // });
-  }
-  componentWillReceiveProps(nextProps) {
-    this.setState({increasing: nextProps.val > this.props.val});
-  }
-  shouldComponentUpdate(nextProps, nextState) {
-    return nextProps.val % 5 === 0;
-  }
-  componentDidUpdate(prevProps, prevState) {
-    console.log('prevProps', prevProps);
+    this.setState({val: this.state.val + 1});
   }
   componentWillMount() {
     console.log('mounting!');
-    // this.setState({m: 2});
+  }
+  render(){
+    return <InnerComponent
+      update={this.update}
+      {...this.state}
+      {...this.props} />
   }
   componentDidMount() {
     console.log('mounted!');
-    // this.inc = setInterval(this.clickUpdate, 500);
   }
   componentWillUnmount() {
     console.log('unmounted!');
-    // clearInterval(this.inc);
   }
+}
+
+const Button = (props) => <button onClick={props.update}>{props.txt} - {props.val}</button>;
+const Label = (props) => <label onMouseMove={props.update}>{props.txt} - {props.val}</label>;
+
+let ButtonMixed = Mixin(Button);
+let LabelMixed = Mixin(Label);
+
+class App extends Component {
   render() {
-    console.log('rendering!');
-    console.log(this.state.increasing);
     return(
       <div>
-        <br />
-        <button onClick={this.update}>
-          {this.props.val}
-        </button>
+        <ButtonMixed txt="Button" />
+        <LabelMixed txt="Label" />
       </div>
     )
   }
 }
-
-App.defaultProps = { val: 0 };
 
 class Slider extends Component {
   render() {
@@ -99,9 +78,6 @@ class Wrapper extends Component {
     );
   }
 }
-
-
-const Button = (props) => <button onClick={props.update}>{props.children} {props.val}</button>;
 
 const Heart = () => <span className="glyphicon glyphicon-heart"></span>
 
