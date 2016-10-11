@@ -8,7 +8,8 @@ class App extends Component {
       red: 128,
       green: 128,
       blue: 128,
-      val: 0
+      val: 0,
+      increasing: false
     };
     this.update = this.update.bind(this);
     this.clickUpdate = this.clickUpdate.bind(this);
@@ -17,39 +18,52 @@ class App extends Component {
     this.setState({val: this.state.val + 1});
   }
   update(e){
-    this.setState({
-      red: ReactDOM.findDOMNode(this.refs.red.refs.inp).value,
-      green: ReactDOM.findDOMNode(this.refs.green.refs.inp).value,
-      blue: ReactDOM.findDOMNode(this.refs.blue.refs.inp).value
-    });
+    ReactDOM.render(
+      <App val={this.props.val + 1} />,
+      document.getElementById('app')
+    );
+    // this.setState({
+    //   red: ReactDOM.findDOMNode(this.refs.red.refs.inp).value,
+    //   green: ReactDOM.findDOMNode(this.refs.green.refs.inp).value,
+    //   blue: ReactDOM.findDOMNode(this.refs.blue.refs.inp).value
+    // });
+  }
+  componentWillReceiveProps(nextProps) {
+    this.setState({increasing: nextProps.val > this.props.val});
+  }
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps.val % 5 === 0;
+  }
+  componentDidUpdate(prevProps, prevState) {
+    console.log('prevProps', prevProps);
   }
   componentWillMount() {
     console.log('mounting!');
+    // this.setState({m: 2});
   }
   componentDidMount() {
     console.log('mounted!');
+    // this.inc = setInterval(this.clickUpdate, 500);
   }
   componentWillUnmount() {
     console.log('unmounted!');
+    // clearInterval(this.inc);
   }
   render() {
     console.log('rendering!');
+    console.log(this.state.increasing);
     return(
       <div>
-        <Slider ref="red" update={this.update} />
-        {this.state.red}
         <br />
-        <Slider ref="green" update={this.update} />
-        {this.state.green}
-        <br />
-        <Slider ref="blue" update={this.update} />
-        {this.state.blue}
-        <br />
-        <Button clickUpdate={this.clickUpdate} val={this.state.val}>I <Heart /> react</Button>
+        <button onClick={this.update}>
+          {this.props.val}
+        </button>
       </div>
     )
   }
 }
+
+App.defaultProps = { val: 0 };
 
 class Slider extends Component {
   render() {
@@ -87,7 +101,7 @@ class Wrapper extends Component {
 }
 
 
-const Button = (props) => <button onClick={props.clickUpdate}>{props.children} {props.val}</button>;
+const Button = (props) => <button onClick={props.update}>{props.children} {props.val}</button>;
 
 const Heart = () => <span className="glyphicon glyphicon-heart"></span>
 
@@ -101,4 +115,4 @@ const Heart = () => <span className="glyphicon glyphicon-heart"></span>
 //   )
 // }
 
-export default Wrapper;
+export default App;
